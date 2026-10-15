@@ -1,124 +1,103 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
-import SupabaseStatus from './SupabaseStatus.tsx'
+import { useEffect, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import './App.css';
+import AuthForm from './AuthForm.tsx';
+import Onboarding from './Onboarding.tsx';
+import { HEBREW_LEVELS } from './hebrewLevels.ts';
+import type { HebrewLevel } from './hebrewLevels.ts';
+import { supabase } from './lib/supabase.ts';
+
+// level null = no profile row yet, so the user still needs onboarding.
+type Profile = { userId: string; level: HebrewLevel | null; error: string | null };
 
 function App() {
-  const [count, setCount] = useState(0)
+  // undefined = still loading the stored session; null = signed out.
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  const userId = session?.user.id;
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    supabase
+      .from('profiles')
+      .select('hebrew_level')
+      .eq('id', userId)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        setProfile({
+          userId,
+          level: (data?.hebrew_level as HebrewLevel | undefined) ?? null,
+          error: error?.message ?? null,
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  if (session === undefined) return null;
+
+  if (!session) {
+    return (
+      <section id="center">
+        <AuthForm />
+      </section>
+    );
+  }
+
+  const signOut = (
+    <button
+      type="button"
+      className="link-button"
+      onClick={() => supabase.auth.signOut()}
+    >
+      Sign out
+    </button>
+  );
+
+  // A profile loaded for a previous user counts as still loading.
+  if (profile?.userId !== session.user.id) return null;
+
+  if (profile.error) {
+    return (
+      <section id="center">
+        <p className="auth-error" role="alert">{profile.error}</p>
+        {signOut}
+      </section>
+    );
+  }
+
+  const { level } = profile;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
+    <section id="center">
+      {level === null ? (
+        <Onboarding
+          userId={session.user.id}
+          onComplete={(level) => setProfile({ ...profile, level })}
+        />
+      ) : (
+        <>
+          <p>{session.user.email}</p>
           <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+            Hebrew level: {HEBREW_LEVELS.find((option) => option.value === level)?.label}
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-        <SupabaseStatus />
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        </>
+      )}
+      {signOut}
+    </section>
+  );
 }
 
-export default App
+export default App;

@@ -28,3 +28,6 @@ dist-ssr
 .env*.local
 .env*
 !.env.example
+
+# Supabase CLI link state
+supabase/.temp
