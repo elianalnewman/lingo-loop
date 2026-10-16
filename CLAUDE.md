@@ -13,8 +13,6 @@ No test framework is set up yet.
 
 ## Architecture
 
-This is a freshly scaffolded Vite + React 19 + TypeScript single-page app; `src/App.tsx` is still the template's starter page.
-
 - Entry: `index.html` → `src/main.tsx` (renders `<App />` in `StrictMode`) → `src/App.tsx`.
 - TypeScript uses project references: `tsconfig.app.json` covers `src/`, `tsconfig.node.json` covers `vite.config.ts`. `noEmit` is on, so `tsc` only type-checks and Vite does the bundling.
 - Strict compiler flags that will fail the build: `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax` (type-only imports need `import type`), and `erasableSyntaxOnly` (no `enum`, `namespace`, or constructor parameter properties).

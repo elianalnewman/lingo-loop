@@ -1,103 +1,38 @@
-import { useEffect, useState } from 'react';
-import type { Session } from '@supabase/supabase-js';
-import './App.css';
-import AuthForm from './AuthForm.tsx';
-import Onboarding from './Onboarding.tsx';
-import { HEBREW_LEVELS } from './hebrewLevels.ts';
-import type { HebrewLevel } from './hebrewLevels.ts';
-import { supabase } from './lib/supabase.ts';
-
-// level null = no profile row yet, so the user still needs onboarding.
-type Profile = { userId: string; level: HebrewLevel | null; error: string | null };
+import { Navigate, Route, Routes } from 'react-router'
+import { GuestOnly, RequireAuth, RequireProfile } from './auth/guards.tsx'
+import AppShell from './components/AppShell.tsx'
+import AuthForm from './components/AuthForm.tsx'
+import AuthLayout from './components/AuthLayout.tsx'
+import ConversationPage from './pages/ConversationPage.tsx'
+import DashboardPage from './pages/DashboardPage.tsx'
+import LandingPage from './pages/LandingPage.tsx'
+import OnboardingPage from './pages/OnboardingPage.tsx'
 
 function App() {
-  // undefined = still loading the stored session; null = signed out.
-  const [session, setSession] = useState<Session | null | undefined>(undefined);
-  const [profile, setProfile] = useState<Profile | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    return () => data.subscription.unsubscribe();
-  }, []);
-
-  const userId = session?.user.id;
-
-  useEffect(() => {
-    if (!userId) return;
-    let cancelled = false;
-    supabase
-      .from('profiles')
-      .select('hebrew_level')
-      .eq('id', userId)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        setProfile({
-          userId,
-          level: (data?.hebrew_level as HebrewLevel | undefined) ?? null,
-          error: error?.message ?? null,
-        });
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
-
-  if (session === undefined) return null;
-
-  if (!session) {
-    return (
-      <section id="center">
-        <AuthForm />
-      </section>
-    );
-  }
-
-  const signOut = (
-    <button
-      type="button"
-      className="link-button"
-      onClick={() => supabase.auth.signOut()}
-    >
-      Sign out
-    </button>
-  );
-
-  // A profile loaded for a previous user counts as still loading.
-  if (profile?.userId !== session.user.id) return null;
-
-  if (profile.error) {
-    return (
-      <section id="center">
-        <p className="auth-error" role="alert">{profile.error}</p>
-        {signOut}
-      </section>
-    );
-  }
-
-  const { level } = profile;
-
   return (
-    <section id="center">
-      {level === null ? (
-        <Onboarding
-          userId={session.user.id}
-          onComplete={(level) => setProfile({ ...profile, level })}
-        />
-      ) : (
-        <>
-          <p>{session.user.email}</p>
-          <p>
-            Hebrew level: {HEBREW_LEVELS.find((option) => option.value === level)?.label}
-          </p>
-        </>
-      )}
-      {signOut}
-    </section>
-  );
+    <Routes>
+      <Route index element={<LandingPage />} />
+
+      <Route element={<GuestOnly />}>
+        <Route element={<AuthLayout />}>
+          <Route path="login" element={<AuthForm key="login" mode="login" />} />
+          <Route path="signup" element={<AuthForm key="signup" mode="signup" />} />
+        </Route>
+      </Route>
+
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route path="onboarding" element={<OnboardingPage />} />
+          <Route element={<RequireProfile />}>
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="conversations/:id" element={<ConversationPage />} />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }
 
-export default App;
+export default App
