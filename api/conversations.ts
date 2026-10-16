@@ -2,7 +2,9 @@
 // The insert runs with the caller's own JWT, so RLS is enforced on top of the
 // checks here. No service-role key is used.
 import { createClient } from '@supabase/supabase-js'
-import { isLevel, isScenarioId } from '../src/lib/options.ts'
+// Import with .js: Vercel compiles options.ts to options.js and Node resolves the
+// specifier as written at runtime (a .ts specifier crashes the deployed function).
+import { isLevel, isScenarioId } from '../src/lib/options.js'
 
 const MAX_BODY_BYTES = 1024
 const ALLOWED_KEYS = new Set(['scenario', 'level'])
