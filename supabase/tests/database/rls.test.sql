@@ -5,7 +5,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(31);
+select plan(32);
 
 -- Collect each assertion's TAP line; the test roles need to be able to write it.
 create temp table tap_output (n serial primary key, line text not null);
@@ -69,6 +69,12 @@ insert into tap_output (line) select throws_ok(
   $$insert into public.messages (conversation_id, role, content, correction)
     values ('cccccccc-0000-0000-0000-00000000000a', 'user', 'hi', 'fake correction')$$,
   '42501', null, 'Alice cannot write a correction herself'
+);
+
+insert into tap_output (line) select throws_ok(
+  $$insert into public.messages (conversation_id, role, content, word_translations)
+    values ('cccccccc-0000-0000-0000-00000000000a', 'user', 'hi', '[{"word": "hi", "translation": "fake"}]')$$,
+  '42501', null, 'Alice cannot write word translations herself'
 );
 
 insert into tap_output (line) select throws_ok(

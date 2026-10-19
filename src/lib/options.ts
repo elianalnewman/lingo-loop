@@ -19,6 +19,16 @@ export const SCENARIOS = [
     character: 'Noa, the barista',
     greeting: 'שלום! ברוכים הבאים לבית הקפה. מה תרצו להזמין?',
     greetingTranslation: 'Hi! Welcome to the café. What would you like to order?',
+    greetingWords: [
+      { word: 'שלום', translation: 'hello' },
+      { word: 'ברוכים', translation: 'welcome (lit. blessed)' },
+      { word: 'הבאים', translation: 'those who come' },
+      { word: 'לבית', translation: 'to the house of' },
+      { word: 'הקפה', translation: 'the coffee (בית קפה = café)' },
+      { word: 'מה', translation: 'what' },
+      { word: 'תרצו', translation: 'would you (pl.) like' },
+      { word: 'להזמין', translation: 'to order' },
+    ],
   },
   {
     id: 'market',
@@ -28,6 +38,18 @@ export const SCENARIOS = [
     character: 'Avi, the fruit vendor',
     greeting: 'בוקר טוב! יש לנו עגבניות טריות היום. מה אתם מחפשים?',
     greetingTranslation: 'Good morning! We have fresh tomatoes today. What are you looking for?',
+    greetingWords: [
+      { word: 'בוקר', translation: 'morning' },
+      { word: 'טוב', translation: 'good' },
+      { word: 'יש', translation: 'there is (יש לנו = we have)' },
+      { word: 'לנו', translation: 'to us' },
+      { word: 'עגבניות', translation: 'tomatoes' },
+      { word: 'טריות', translation: 'fresh' },
+      { word: 'היום', translation: 'today' },
+      { word: 'מה', translation: 'what' },
+      { word: 'אתם', translation: 'you (pl.)' },
+      { word: 'מחפשים', translation: 'looking for' },
+    ],
   },
   {
     id: 'making_plans',
@@ -37,6 +59,14 @@ export const SCENARIOS = [
     character: 'Maya, your friend',
     greeting: 'היי! מה אתם עושים בסוף השבוע?',
     greetingTranslation: 'Hey! What are you doing this weekend?',
+    greetingWords: [
+      { word: 'היי', translation: 'hey' },
+      { word: 'מה', translation: 'what' },
+      { word: 'אתם', translation: 'you (pl.)' },
+      { word: 'עושים', translation: 'doing' },
+      { word: 'בסוף', translation: 'at the end of' },
+      { word: 'השבוע', translation: 'the week (סוף השבוע = weekend)' },
+    ],
   },
   {
     id: 'meeting_someone',
@@ -46,6 +76,13 @@ export const SCENARIOS = [
     character: 'Daniel, a new acquaintance',
     greeting: 'נעים מאוד! איך קוראים לך?',
     greetingTranslation: 'Nice to meet you! What is your name?',
+    greetingWords: [
+      { word: 'נעים', translation: 'pleasant (נעים מאוד = nice to meet you)' },
+      { word: 'מאוד', translation: 'very' },
+      { word: 'איך', translation: 'how' },
+      { word: 'קוראים', translation: '(they) call (איך קוראים לך = what is your name)' },
+      { word: 'לך', translation: 'you' },
+    ],
   },
 ] as const
 
