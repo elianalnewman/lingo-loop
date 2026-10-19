@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router'
 import { supabase } from '../lib/supabase.ts'
-import { alertError, buttonPrimary, input } from './ui.ts'
+import { alertError, buttonPrimary, eyebrow, input, linkInline } from './ui.ts'
 
 type Mode = 'login' | 'signup'
 
@@ -63,14 +63,15 @@ function AuthForm({ mode }: { mode: Mode }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate={false}>
-      <div className="space-y-1.5">
-        <h1 className="text-2xl font-semibold tracking-tight">{copy.title}</h1>
-        <p className="text-sm text-slate-500">{copy.subtitle}</p>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate={false}>
+      <div className="space-y-3 border-b border-ink pb-6">
+        <p className={eyebrow}>{mode === 'login' ? 'Log in' : 'Sign up'}</p>
+        <h1 className="text-display-sm font-normal tracking-tight">{copy.title}</h1>
+        <p className="text-ink-soft">{copy.subtitle}</p>
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-slate-700">
+        <label htmlFor="email" className="text-sm font-medium text-ink">
           Email
         </label>
         <input
@@ -86,7 +87,7 @@ function AuthForm({ mode }: { mode: Mode }) {
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-slate-700">
+        <label htmlFor="password" className="text-sm font-medium text-ink">
           Password
         </label>
         <input
@@ -102,7 +103,7 @@ function AuthForm({ mode }: { mode: Mode }) {
           className={input}
         />
         {mode === 'signup' && (
-          <p id="password-hint" className="text-xs text-slate-500">
+          <p id="password-hint" className="text-xs text-ink-soft">
             At least 8 characters.
           </p>
         )}
@@ -114,7 +115,7 @@ function AuthForm({ mode }: { mode: Mode }) {
         </p>
       )}
       {message && (
-        <p role="status" className="rounded-xl border border-accent-100 bg-accent-50 px-4 py-3 text-sm text-accent-700">
+        <p role="status" className="border-s-2 border-cobalt bg-sage-wash px-4 py-3 text-sm text-ink">
           {message}
         </p>
       )}
@@ -123,12 +124,9 @@ function AuthForm({ mode }: { mode: Mode }) {
         {loading ? 'Please wait…' : copy.submit}
       </button>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-sm text-ink-soft">
         {copy.switchPrompt}{' '}
-        <Link
-          to={copy.switchTo}
-          className="rounded font-semibold text-brand-600 hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-brand-600"
-        >
+        <Link to={copy.switchTo} className={linkInline}>
           {copy.switchLabel}
         </Link>
       </p>

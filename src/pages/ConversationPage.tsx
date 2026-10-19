@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link, useParams } from 'react-router'
-import ScenarioIcon from '../components/ScenarioIcon.tsx'
-import Spinner, { FullPageSpinner } from '../components/Spinner.tsx'
+import ScenarioArt from '../components/ScenarioArt.tsx'
+import { SCENE_STYLE, splitCharacter } from '../components/scenes.ts'
+import { FullPageSpinner } from '../components/Spinner.tsx'
 import TutorMessage from '../components/TutorMessage.tsx'
-import { alertError, buttonPrimary, buttonSecondary, card, input } from '../components/ui.ts'
+import {
+  alertError,
+  buttonPrimary,
+  buttonSecondary,
+  eyebrow,
+  eyebrowType,
+  input,
+  tutorBubble,
+  userBubble,
+} from '../components/ui.ts'
 import { sendChatMessage } from '../lib/api.ts'
 import { MAX_MESSAGE_CHARS, validateMessage, type ChatMessage } from '../lib/chat.ts'
-import { getLevel, getScenario } from '../lib/options.ts'
+import { getGreeting, getLevel, getScenario } from '../lib/options.ts'
 import { supabase } from '../lib/supabase.ts'
 
 type Conversation = { id: string; scenario: string; level: string; created_at: string }
@@ -19,8 +29,8 @@ type State =
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-const assistantBubble = 'max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3 text-slate-900'
-const userBubble = 'ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-brand-600 px-4 py-3 text-white'
+const backLink =
+  'inline-flex min-h-11 items-center gap-2 rounded-sm text-sm font-medium text-ink underline-offset-4 hover:underline'
 
 function ConversationPage() {
   const { id = '' } = useParams()
@@ -74,20 +84,19 @@ function ConversationPage() {
 
   if (state.status === 'not_found' || state.status === 'error') {
     return (
-      <div className={`mx-auto max-w-md p-8 text-center ${card}`}>
-        <h1 className="text-xl font-semibold">
+      <div className="mx-auto max-w-xl border-t border-ink pt-8">
+        <p className={eyebrow}>{state.status === 'not_found' ? 'Page missing' : 'Interrupted'}</p>
+        <h1 className="mt-3 text-display-md font-normal tracking-tight">
           {state.status === 'not_found' ? 'Conversation not found' : 'Something went wrong'}
         </h1>
         {state.status === 'error' ? (
-          <p role="alert" className={`mt-4 text-left ${alertError}`}>
+          <p role="alert" className={`mt-6 ${alertError}`}>
             {state.message}
           </p>
         ) : (
-          <p className="mt-2 text-sm text-slate-500">
-            It may have been deleted, or it belongs to a different account.
-          </p>
+          <p className="mt-4 text-ink-soft">It may have been deleted, or it belongs to a different account.</p>
         )}
-        <Link to="/dashboard" className={`mt-6 ${buttonSecondary}`}>
+        <Link to="/dashboard" className={`mt-8 ${buttonSecondary}`}>
           Back to dashboard
         </Link>
       </div>
@@ -97,7 +106,10 @@ function ConversationPage() {
   const { conversation, messages } = state
   const scenario = getScenario(conversation.scenario)
   const level = getLevel(conversation.level)
+  const greeting = scenario ? getGreeting(scenario, level?.value ?? 'A1') : null
   const sending = pending !== null
+  const style = scenario ? SCENE_STYLE[scenario.id] : null
+  const host = scenario ? splitCharacter(scenario) : null
   const remaining = MAX_MESSAGE_CHARS - draft.trim().length
 
   async function send() {
@@ -144,78 +156,132 @@ function ConversationPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <Link to="/dashboard" className="text-sm font-medium text-brand-600 hover:text-brand-700">
-        ← Dashboard
+    <div className="mx-auto max-w-4xl">
+      <Link to="/dashboard" className={backLink}>
+        <span aria-hidden="true">←</span> All destinations
       </Link>
 
-      <section aria-labelledby="conversation-title" className={`mt-4 flex min-h-[32rem] flex-col overflow-hidden ${card}`}>
-        <header className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
-          {scenario && <ScenarioIcon id={scenario.id} size="sm" />}
-          <div className="min-w-0 flex-1">
-            <h1 id="conversation-title" className="truncate font-semibold">
-              {scenario?.title ?? conversation.scenario}
-            </h1>
-            <p className="text-xs text-slate-500">
-              {scenario?.character}
+      <section
+        aria-labelledby="conversation-title"
+        className="mt-3 flex min-h-[70svh] flex-col rounded-card border border-ink bg-paper"
+      >
+        <header
+          className={`flex overflow-hidden rounded-t-card border-b border-ink ${style?.ground ?? 'bg-paper-deep'} ${style?.onGround ?? 'text-ink'}`}
+        >
+          <div className="min-w-0 flex-1 p-5 sm:p-7">
+            <p className={eyebrowType}>
+              Scene {style?.folio ?? ''}
               {level && ` · ${level.value} ${level.label}`}
             </p>
+            <div className="mt-2 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+              <h1 id="conversation-title" className="text-display-sm font-normal tracking-tight text-current">
+                {scenario?.title ?? conversation.scenario}
+              </h1>
+              {scenario && (
+                <p lang="he" dir="rtl" className="text-2xl font-medium">
+                  {scenario.hebrewTitle}
+                </p>
+              )}
+            </div>
+            {host && (
+              <div className="mt-5 flex items-center gap-3">
+                <span
+                  aria-hidden="true"
+                  className="grid size-11 shrink-0 place-items-center rounded-full border border-ink bg-paper font-display text-xl text-ink"
+                >
+                  {host.name.charAt(0)}
+                </span>
+                <p className="text-sm leading-snug">
+                  <span className="block font-medium">You’re talking with {host.name}</span>
+                  <span className="block">{host.role}</span>
+                </p>
+              </div>
+            )}
           </div>
+          {scenario && (
+            <ScenarioArt id={scenario.id} className="hidden w-48 shrink-0 border-s border-ink sm:block md:w-72" />
+          )}
         </header>
 
-        <ol aria-label="Messages" aria-live="polite" className="flex-1 space-y-4 px-5 py-6">
-          {/* The scenario's scripted greeting always opens the conversation (the tutor sees it too). */}
-          {scenario && (
-            <li className={assistantBubble}>
+        <ol aria-label="Messages" aria-live="polite" className="paper-grain flex-1 space-y-6 px-4 py-8 sm:px-8">
+          {/* The scenario's scripted greeting for this level always opens the conversation (the tutor sees it too). */}
+          {greeting && (
+            <li className="flex flex-col items-start gap-1.5">
               <TutorMessage
-                content={scenario.greeting}
-                translation={scenario.greetingTranslation}
-                words={scenario.greetingWords}
+                content={greeting.text}
+                translation={greeting.translation}
+                words={greeting.words}
+                speaker={host?.name}
               />
             </li>
           )}
-          {messages.map((message) => (
-            <li key={message.id} className={message.role === 'user' ? userBubble : assistantBubble}>
-              {message.role === 'assistant' ? (
+          {messages.map((message) =>
+            message.role === 'assistant' ? (
+              <li key={message.id} className="flex flex-col items-start gap-1.5">
                 <TutorMessage
                   content={message.content}
                   translation={message.translation}
                   words={message.word_translations}
                   correction={message.correction}
+                  speaker={host?.name}
                 />
-              ) : (
-                <p lang="he" dir="auto" className="text-lg whitespace-pre-wrap">
-                  {message.content}
-                </p>
-              )}
-            </li>
-          ))}
+              </li>
+            ) : (
+              <li key={message.id} className="flex flex-col items-end">
+                <span className="sr-only">You:</span>
+                <div className={`${userBubble}`}>
+                  <p lang="he" dir="auto" className="text-lg leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </p>
+                </div>
+              </li>
+            ),
+          )}
           {pending !== null && (
             <>
-              <li className={`${userBubble} opacity-70`}>
-                <p lang="he" dir="auto" className="text-lg whitespace-pre-wrap">
-                  {pending}
-                </p>
+              <li className="flex flex-col items-end">
+                <span className="sr-only">You:</span>
+                <div className={`${userBubble} opacity-70`}>
+                  <p lang="he" dir="auto" className="text-lg leading-relaxed whitespace-pre-wrap">
+                    {pending}
+                  </p>
+                </div>
               </li>
-              <li className={`${assistantBubble} flex items-center gap-2 text-sm text-slate-500`}>
-                <Spinner label="Waiting for the tutor's reply" className="[&>span:first-child]:size-4" />
-                {scenario ? `${scenario.character.split(',')[0]} is typing…` : 'Typing…'}
+              <li className="flex flex-col items-start gap-1.5">
+                {host && <p className={eyebrow}>{host.name}</p>}
+                <div className={`${tutorBubble} flex items-center gap-1.5 py-4`}>
+                  <span role="status" className="sr-only">
+                    {host ? `${host.name} is typing…` : 'Typing…'}
+                  </span>
+                  {[0, 200, 400].map((delay) => (
+                    <span
+                      key={delay}
+                      aria-hidden="true"
+                      className="size-1.5 animate-breathe rounded-full bg-ink"
+                      style={{ animationDelay: `${delay}ms` }}
+                    />
+                  ))}
+                </div>
               </li>
             </>
           )}
         </ol>
-        <div ref={endRef} />
+        <div ref={endRef} className="scroll-mb-44" />
 
-        <form className="border-t border-slate-100 p-4" onSubmit={handleSubmit} noValidate>
+        <form
+          className="sticky bottom-0 rounded-b-card border-t border-ink bg-paper p-4 sm:p-5"
+          onSubmit={handleSubmit}
+          noValidate
+        >
           {sendError && (
             <p role="alert" className={`mb-3 ${alertError}`}>
               {sendError}
             </p>
           )}
-          <label htmlFor="composer" className="sr-only">
-            Your reply in Hebrew
+          <label htmlFor="composer" className={`mb-2 block ${eyebrow}`}>
+            Your reply, in Hebrew
           </label>
-          <div className="flex items-end gap-2">
+          <div className="flex items-end gap-3">
             <textarea
               id="composer"
               ref={composerRef}
@@ -232,15 +298,23 @@ function ConversationPage() {
               placeholder="כתבו כאן…"
               aria-describedby="composer-note"
               aria-invalid={remaining < 0 || undefined}
-              className={`min-h-11 resize-none ${input} disabled:bg-slate-50 disabled:text-slate-400`}
+              className={`min-h-12 resize-none text-lg ${input} disabled:bg-paper-deep disabled:text-ink-soft`}
             />
-            <button type="submit" disabled={sending || !draft.trim() || remaining < 0} className={buttonPrimary}>
+            <button
+              type="submit"
+              disabled={sending || !draft.trim() || remaining < 0}
+              className={`${buttonPrimary} min-h-12 px-6`}
+            >
               {sending ? 'Sending…' : 'Send'}
             </button>
           </div>
-          <p id="composer-note" className="mt-2 flex justify-between gap-4 text-xs text-slate-500">
+          <p id="composer-note" className="mt-2 flex flex-wrap justify-between gap-x-4 gap-y-1 text-xs text-ink-soft">
             <span>Enter to send · Shift+Enter for a new line</span>
-            <span className={remaining < 0 ? 'font-semibold text-red-700' : remaining <= 50 ? 'text-amber-700' : ''}>
+            <span
+              className={
+                remaining < 0 ? 'font-semibold text-terracotta-deep' : remaining <= 50 ? 'text-terracotta-deep' : ''
+              }
+            >
               {remaining < 0 ? `${-remaining} characters over the limit` : `${remaining} characters left`}
             </span>
           </p>

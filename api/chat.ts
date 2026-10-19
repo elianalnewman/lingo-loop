@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import OpenAI from 'openai'
 import { validateMessage, wordKey, type ChatMessage, type WordTranslation } from '../src/lib/chat.js'
-import { getLevel, getScenario } from '../src/lib/options.js'
+import { getGreeting, getLevel, getScenario } from '../src/lib/options.js'
 import { authenticate, json, methodNotAllowed, readJsonObject } from './_shared.js'
 
 const MAX_BODY_BYTES = 4096
@@ -174,7 +174,7 @@ export async function POST(request: Request): Promise<Response> {
     const response = await openai.responses.create({
       model: process.env.OPENAI_MODEL || DEFAULT_MODEL,
       instructions: buildInstructions(scenario, level),
-      input: [{ role: 'assistant', content: scenario.greeting }, ...history],
+      input: [{ role: 'assistant', content: getGreeting(scenario, level.value).text }, ...history],
       text: { format: REPLY_FORMAT },
       reasoning: { effort: 'low' },
       max_output_tokens: MAX_OUTPUT_TOKENS,

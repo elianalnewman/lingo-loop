@@ -1,16 +1,31 @@
-// Shared class strings so buttons and inputs look the same everywhere.
+// Shared class strings so buttons, inputs and editorial details look the same everywhere.
 
-const focus =
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600'
+const focus = 'focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-cobalt'
 
-export const buttonPrimary = `inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none ${focus}`
+export const buttonPrimary = `inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-cobalt px-5 py-2.5 text-sm font-medium tracking-wide text-paper transition-colors hover:bg-cobalt-deep disabled:cursor-not-allowed disabled:bg-rule disabled:text-ink-soft ${focus}`
 
-export const buttonSecondary = `inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 ${focus}`
+export const buttonSecondary = `inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-ink px-5 py-2.5 text-sm font-medium tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper ${focus}`
 
-export const buttonGhost = `inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 ${focus}`
+export const buttonGhost = `inline-flex min-h-11 items-center justify-center gap-2 rounded-sm px-3 py-2 text-sm font-medium text-ink underline-offset-4 decoration-1 transition-colors hover:underline ${focus}`
 
-export const input = `block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-3 focus:ring-brand-100 focus:outline-none`
+export const input = `block w-full rounded-sm border border-rule bg-paper px-3.5 py-2.5 text-ink placeholder:text-ink-soft/70 focus:border-cobalt focus:outline-2 focus:outline-offset-0 focus:outline-cobalt`
 
-export const card = 'rounded-[var(--radius-card)] border border-slate-200 bg-white shadow-sm'
+export const alertError =
+  'border-s-2 border-terracotta-deep bg-peach/40 px-4 py-3 text-sm text-ink'
 
-export const alertError = 'rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800'
+/** Small tracked capitals that sit above headings, like a magazine section label. */
+export const eyebrowType = 'text-[0.6875rem] font-medium tracking-[0.18em] uppercase'
+export const eyebrow = `${eyebrowType} text-ink-soft`
+
+export const linkInline = `rounded-sm font-medium text-cobalt underline decoration-1 underline-offset-4 hover:text-cobalt-deep ${focus}`
+
+// Chat bubbles: the tutor sits on the inline-start side on sunk paper, the learner on the end side in cobalt.
+export const tutorBubble =
+  'max-w-[88%] rounded-bubble rounded-ss-sm border border-rule bg-paper-deep px-4 py-3 text-ink sm:max-w-[75%] sm:px-5'
+
+export const userBubble =
+  'max-w-[88%] rounded-bubble rounded-se-sm bg-cobalt px-4 py-3 text-paper sm:max-w-[75%] sm:px-5'
+
+/** A margin note: feedback on the learner's last message. */
+export const correctionNote =
+  'max-w-[88%] border-s-2 border-terracotta bg-sage-wash px-4 py-3 text-sm leading-relaxed text-ink sm:max-w-[75%]'

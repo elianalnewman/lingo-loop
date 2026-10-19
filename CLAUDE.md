@@ -21,7 +21,13 @@ LingoLoop: a Vite + React 19 SPA for practicing conversational Hebrew, backed by
 - Browser reads (profiles, conversations, messages) go straight to Supabase with the publishable key; RLS limits them to the user's rows. Writes that need server checks go through `api/` with the user's bearer token (`src/lib/api.ts`).
 - `api/conversations.ts`: Web-standard `POST` handler. It verifies the JWT with `getClaims`, validates the body against the allowlists, and inserts **as the user** (RLS still applies).
 - `api/chat.ts`: inserts the learner message as the user, enforces per-user and per-conversation limits by counting their messages, calls OpenAI (Responses API, structured output, model from `OPENAI_MODEL`), then inserts the assistant reply with `SUPABASE_SECRET_KEY`, the only place that key is used. Shared helpers are in `api/_shared.ts` (the `_` prefix keeps Vercel from deploying it as a function).
-- Styling: Tailwind v4 via `@tailwindcss/vite`; tokens (`brand-*` blue, `accent-*` teal, `--radius-card`, Heebo for `:lang(he)`) are in `src/index.css`. Shared class strings are in `src/components/ui.ts`. Hebrew text always gets `lang="he" dir="rtl"`.
+- Styling: Tailwind v4 via `@tailwindcss/vite`. The "Editorial Mediterranean" tokens are in `src/index.css`:
+  - Colors: `paper`, `ink`, `ink-soft`, `rule`, `cobalt`, `terracotta` (+ `-deep` for small text, since plain terracotta fails contrast on paper), `sage`, `peach`.
+  - Fonts: `font-display` Fraunces, `font-sans` DM Sans, Heebo for `:lang(he)`.
+  - Radii: `rounded-sm`/`-card`/`-bubble`. Type: `text-display-*`. Spacing: `py-section`.
+  - Shared class strings (buttons, inputs, `eyebrow`, chat bubbles, `correctionNote`) are in `src/components/ui.ts`.
+  - Scene artwork is inline SVG in `src/components/ScenarioArt.tsx`, with per-scene ground/layout in `scenes.ts`.
+  - Hebrew text always gets `lang="he" dir="rtl"`. The page itself stays LTR, so don't put logical corner/inset classes on an element that also has `dir="rtl"`; wrap it instead.
 - TypeScript uses project references: `tsconfig.app.json` (`src/`), `tsconfig.api.json` (`api/`), `tsconfig.node.json` (`vite.config.ts`). `noEmit` is on.
 - Strict compiler flags that will fail the build: `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax` (type-only imports need `import type`), and `erasableSyntaxOnly` (no `enum`, `namespace`, or constructor parameter properties).
 - Imports include the `.tsx`/`.ts` extension (`allowImportingTsExtensions`).

@@ -1,40 +1,106 @@
 @import 'tailwindcss';
 
-/* LingoLoop design tokens: restrained blue primary, teal accent, slate neutrals. */
+/*
+ * LingoLoop design tokens: "Editorial Mediterranean".
+ * Warm paper and charcoal ink, cobalt as the primary accent, burnt orange
+ * (terracotta) as the secondary, sage and peach as supporting grounds.
+ *
+ * Contrast on paper: ink 13.9:1, ink-soft 6.2:1, cobalt 6.9:1, terracotta-deep 5.1:1.
+ * Plain terracotta is 2.9:1 on paper, so use it only for large type and decoration.
+ * On colored grounds (sage, peach, terracotta) set small text in ink.
+ */
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-hebrew: 'Heebo', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-hebrew: 'Heebo', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-50: #eff5ff;
-  --color-brand-100: #dbe7fe;
-  --color-brand-200: #bfd4fd;
-  --color-brand-500: #3b6fe0;
-  --color-brand-600: #2756c5;
-  --color-brand-700: #1f449e;
-  --color-brand-900: #172b5c;
+  --color-paper: #f7f1e6;
+  --color-paper-deep: #efe6d6;
+  --color-ink: #23241f;
+  --color-ink-soft: #5a5a52;
+  --color-rule: #d9cfbd;
+  --color-cobalt: #2449b5;
+  --color-cobalt-deep: #1b3890;
+  --color-cobalt-wash: #e3e6ef;
+  --color-terracotta: #ea633b;
+  --color-terracotta-deep: #b0431f;
+  --color-sage: #d6dfae;
+  --color-sage-wash: #e9ecd0;
+  --color-peach: #ebc5a5;
 
-  --color-accent-50: #effbf8;
-  --color-accent-100: #d3f3ec;
-  --color-accent-500: #14a38b;
-  --color-accent-600: #0d8573;
-  --color-accent-700: #0e6a5d;
+  --text-display-sm: clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);
+  --text-display-sm--line-height: 1.08;
+  --text-display-md: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --text-display-md--line-height: 1.02;
+  --text-display-xl: clamp(3rem, 1.2rem + 7.5vw, 7.25rem);
+  --text-display-xl--line-height: 0.95;
 
-  --radius-card: 1.25rem;
+  --radius-sm: 2px;
+  --radius-card: 6px;
+  --radius-bubble: 18px;
+
+  --spacing-section: clamp(4rem, 3rem + 4vw, 7rem);
 }
 
 @layer base {
   html {
-    @apply bg-slate-50 font-sans text-slate-700 antialiased;
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  body {
+    @apply bg-paper;
   }
 
   h1,
   h2,
   h3 {
-    @apply text-slate-900;
+    @apply font-display;
+    font-optical-sizing: auto;
   }
 
   /* Any Hebrew text gets the Hebrew font; direction is set with dir="rtl" on the element. */
   :lang(he) {
     font-family: var(--font-hebrew);
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-cobalt);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-peach);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* A barely-there paper fibre, for large surfaces only (landing hero, chat backdrop). */
+@utility paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.14 0 0 0 0 0.14 0 0 0 0 0.12 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Typing indicator: three dots that breathe; reduced motion leaves them still. */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@utility animate-breathe {
+  animation: breathe 1.4s ease-in-out infinite;
 }

@@ -5,7 +5,7 @@ function Spinner({ label = 'Loading', className = '' }: Props) {
     <span role="status" className={`inline-flex items-center gap-2 ${className}`}>
       <span
         aria-hidden="true"
-        className="size-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600"
+        className="size-5 animate-spin rounded-full border-2 border-rule border-t-cobalt"
       />
       <span className="sr-only">{label}</span>
     </span>

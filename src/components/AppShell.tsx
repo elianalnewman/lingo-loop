@@ -21,13 +21,11 @@ function AppShell() {
 
   return (
     <div className="min-h-svh">
-      <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/85 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-ink bg-paper">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Logo to="/dashboard" />
-          <div className="flex items-center gap-2">
-            {name && (
-              <span className="hidden max-w-48 truncate text-sm text-slate-500 sm:inline">{name}</span>
-            )}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {name && <span className="hidden max-w-48 truncate text-sm text-ink-soft sm:inline">{name}</span>}
             <button type="button" className={buttonGhost} onClick={signOut} disabled={signingOut}>
               {signingOut ? 'Signing out…' : 'Sign out'}
             </button>

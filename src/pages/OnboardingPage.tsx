@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../auth/context.ts'
 import LevelSelector from '../components/LevelSelector.tsx'
-import { alertError, buttonPrimary, card, input } from '../components/ui.ts'
+import { alertError, buttonPrimary, eyebrow, input } from '../components/ui.ts'
 import type { Level } from '../lib/options.ts'
 import { supabase } from '../lib/supabase.ts'
 
@@ -42,18 +42,23 @@ function OnboardingPage() {
   }
 
   return (
-    <div className={`mx-auto max-w-2xl p-6 sm:p-10 ${card}`}>
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-accent-600">Welcome to LingoLoop</p>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Let's set up your practice</h1>
-          <p className="text-slate-500">
+    <div className="mx-auto max-w-2xl border-t border-ink pt-8">
+      <form onSubmit={handleSubmit} className="space-y-10">
+        <div className="space-y-4">
+          <p className={eyebrow}>
+            Welcome to LingoLoop ·{' '}
+            <span lang="he" dir="rtl">
+              ברוכים הבאים
+            </span>
+          </p>
+          <h1 className="text-display-md font-normal tracking-tight">Let’s set up your practice.</h1>
+          <p className="max-w-lg text-lg leading-relaxed text-ink-soft">
             Your tutor adapts to your level. You can pick a different level for any conversation later.
           </p>
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="display-name" className="text-sm font-semibold text-slate-900">
+          <label htmlFor="display-name" className="text-sm font-medium text-ink">
             What should we call you?
           </label>
           <input

@@ -1,5 +1,6 @@
 import type { Scenario } from '../lib/options.ts'
-import ScenarioIcon from './ScenarioIcon.tsx'
+import ScenarioArt from './ScenarioArt.tsx'
+import { SCENE_STYLE, splitCharacter } from './scenes.ts'
 
 type Props = {
   scenario: Scenario
@@ -7,14 +8,114 @@ type Props = {
   onSelect: () => void
 }
 
-/** One option in the dashboard's scenario radio group. */
+/** Folio number in the corner; becomes an ink stamp once the scene is chosen. */
+function Marker({ folio, checked }: { folio: string; checked: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`absolute end-3 top-3 z-10 inline-flex items-center gap-1.5 px-2 py-1 text-[0.6875rem] font-medium tracking-[0.18em] uppercase ${
+        checked ? '-rotate-2 bg-ink text-paper' : 'bg-paper text-ink'
+      }`}
+    >
+      {checked ? (
+        <>
+          <svg viewBox="0 0 12 12" className="size-3" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="m2 6.5 2.5 2.5L10 3" />
+          </svg>
+          Selected
+        </>
+      ) : (
+        `No. ${folio}`
+      )}
+    </span>
+  )
+}
+
+/** One option in the dashboard's scenario radio group, art-directed per scene. */
 function ScenarioCard({ scenario, checked, onSelect }: Props) {
+  const style = SCENE_STYLE[scenario.id]
+  const { name, role } = splitCharacter(scenario)
+  const onPaper = style.layout === 'cover'
+  const muted = onPaper ? 'text-ink-soft' : style.onGround
+
+  const title = <h3 className="text-display-sm font-normal tracking-tight">{scenario.title}</h3>
+  const hebrew = (size: string) => (
+    <p lang="he" dir="rtl" className={`font-medium ${size}`}>
+      {scenario.hebrewTitle}
+    </p>
+  )
+  const details = (
+    <>
+      <p className={`text-[0.9375rem] leading-relaxed ${muted}`}>{scenario.description}</p>
+      <p className={`mt-auto border-t pt-3 text-sm ${onPaper ? 'border-rule' : 'border-current/25'} ${muted}`}>
+        Your host: <span className="font-medium">{name}</span>, {role}
+      </p>
+    </>
+  )
+
+  let body
+  switch (style.layout) {
+    case 'cover':
+      body = (
+        <>
+          <ScenarioArt id={scenario.id} className="aspect-16/8 w-full" />
+          <div className="flex flex-1 flex-col gap-3 p-5 @md:p-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+              {title}
+              {hebrew('text-2xl text-terracotta-deep')}
+            </div>
+            {details}
+          </div>
+        </>
+      )
+      break
+    case 'framed':
+      body = (
+        <div className="flex flex-1 flex-col gap-3 p-5 @md:p-6">
+          <ScenarioArt id={scenario.id} className="aspect-4/3 w-full border border-ink" />
+          {hebrew('mt-2 text-3xl')}
+          {title}
+          {details}
+        </div>
+      )
+      break
+    case 'type':
+      body = (
+        <div className="flex flex-1 flex-col gap-3 p-5 @md:p-6">
+          <div className="flex items-end justify-between gap-4 pt-8">
+            <ScenarioArt id={scenario.id} className="size-24 shrink-0 rounded-full border border-ink @md:size-28" />
+            {hebrew('text-end text-4xl leading-[1.05] text-balance @md:text-5xl')}
+          </div>
+          <div className="mt-2">{title}</div>
+          {details}
+        </div>
+      )
+      break
+    case 'split':
+      body = (
+        <div className="flex flex-1 flex-col @md:flex-row">
+          <ScenarioArt
+            id={scenario.id}
+            className="aspect-video w-full border-b border-paper/30 @md:aspect-auto @md:w-[45%] @md:border-e @md:border-b-0"
+          />
+          <div className="flex flex-1 flex-col gap-3 p-5 @md:p-6 @md:pt-12">
+            {hebrew('text-3xl')}
+            {title}
+            {details}
+          </div>
+        </div>
+      )
+      break
+  }
+
   return (
     <label
-      className={`group relative flex cursor-pointer flex-col gap-4 rounded-[var(--radius-card)] border bg-white p-5 transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-600 ${
+      className={`@container relative flex h-full cursor-pointer flex-col overflow-hidden rounded-card border has-focus-visible:outline-2 has-focus-visible:outline-offset-8 has-focus-visible:outline-cobalt ${
+        onPaper ? 'bg-paper' : style.ground
+      } ${style.onGround} ${
         checked
-          ? 'border-brand-500 shadow-md ring-1 ring-brand-500'
-          : 'border-slate-200 shadow-sm hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md'
+          ? 'border-ink ring-2 ring-ink ring-offset-4 ring-offset-paper'
+          : `${onPaper ? 'border-rule' : 'border-transparent'} hover:border-ink`
       }`}
     >
       <input
@@ -25,25 +126,8 @@ function ScenarioCard({ scenario, checked, onSelect }: Props) {
         onChange={onSelect}
         className="sr-only"
       />
-      <div className="flex items-start justify-between gap-3">
-        <ScenarioIcon id={scenario.id} />
-        <span
-          aria-hidden="true"
-          className={`grid size-5 place-items-center rounded-full border transition ${
-            checked ? 'border-brand-600 bg-brand-600' : 'border-slate-300 bg-white'
-          }`}
-        >
-          {checked && <span className="size-2 rounded-full bg-white" />}
-        </span>
-      </div>
-      <div className="space-y-1">
-        <h3 className="font-semibold">{scenario.title}</h3>
-        <p lang="he" dir="rtl" className="text-right text-sm font-medium text-brand-700">
-          {scenario.hebrewTitle}
-        </p>
-      </div>
-      <p className="text-sm text-slate-500">{scenario.description}</p>
-      <p className="mt-auto text-xs font-medium text-slate-400">With {scenario.character}</p>
+      <Marker folio={style.folio} checked={checked} />
+      {body}
     </label>
   )
 }

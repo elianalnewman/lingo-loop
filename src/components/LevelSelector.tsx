@@ -1,5 +1,6 @@
 import { LEVELS } from '../lib/options.ts'
 import type { Level } from '../lib/options.ts'
+import { eyebrow } from './ui.ts'
 
 type Props = {
   value: Level | null
@@ -8,21 +9,19 @@ type Props = {
   name?: string
 }
 
-/** Radio group styled as a row of selectable tiles. */
+/** Radio group set as a ruled row of cells, like the columns of a timetable. */
 function LevelSelector({ value, onChange, legend, name = 'level' }: Props) {
   return (
     <fieldset>
-      <legend className="mb-3 text-sm font-semibold text-slate-900">{legend}</legend>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <legend className={`mb-3 ${eyebrow}`}>{legend}</legend>
+      <div className="grid grid-cols-2 border-s border-t border-ink sm:grid-cols-4">
         {LEVELS.map((level) => {
           const checked = value === level.value
           return (
             <label
               key={level.value}
-              className={`relative flex cursor-pointer flex-col gap-0.5 rounded-xl border p-3 transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-600 ${
-                checked
-                  ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-500'
-                  : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+              className={`relative flex min-h-28 cursor-pointer flex-col gap-1 border-e border-b border-ink p-4 transition-colors has-focus-visible:z-10 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-cobalt ${
+                checked ? 'bg-cobalt text-paper' : 'bg-paper text-ink hover:bg-paper-deep'
               }`}
             >
               <input
@@ -33,11 +32,23 @@ function LevelSelector({ value, onChange, legend, name = 'level' }: Props) {
                 onChange={() => onChange(level.value)}
                 className="sr-only"
               />
-              <span className={`text-base font-semibold ${checked ? 'text-brand-700' : 'text-slate-900'}`}>
-                {level.value}
+              <span className="font-display text-3xl leading-none">{level.value}</span>
+              <span className="mt-1 text-sm font-medium">{level.label}</span>
+              <span className={`text-xs leading-snug ${checked ? 'text-paper' : 'text-ink-soft'}`}>
+                {level.description}
               </span>
-              <span className="text-xs font-medium text-slate-600">{level.label}</span>
-              <span className="text-xs text-slate-500">{level.description}</span>
+              {checked && (
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 12 12"
+                  className="absolute end-3 top-3 size-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                >
+                  <path d="m2 6.5 2.5 2.5L10 3" />
+                </svg>
+              )}
             </label>
           )
         })}

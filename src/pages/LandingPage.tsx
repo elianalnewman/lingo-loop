@@ -1,8 +1,18 @@
 import { Link } from 'react-router'
 import { useAuth } from '../auth/context.ts'
 import Logo from '../components/Logo.tsx'
-import ScenarioIcon from '../components/ScenarioIcon.tsx'
-import { buttonGhost, buttonPrimary, buttonSecondary, card } from '../components/ui.ts'
+import ScenarioArt from '../components/ScenarioArt.tsx'
+import { SCENE_STYLE, splitCharacter } from '../components/scenes.ts'
+import TutorMessage from '../components/TutorMessage.tsx'
+import {
+  buttonGhost,
+  buttonPrimary,
+  buttonSecondary,
+  correctionNote,
+  eyebrow,
+  eyebrowType,
+  userBubble,
+} from '../components/ui.ts'
 import { LEVELS, SCENARIOS } from '../lib/options.ts'
 
 const STEPS = [
@@ -20,6 +30,11 @@ const STEPS = [
   },
 ]
 
+// Varied heights so the destination strip reads like a row of postcards, not a grid of tiles.
+const POSTCARD = ['aspect-[3/4]', 'aspect-square', 'aspect-[4/5]', 'aspect-[2/3]']
+
+const CAFE = SCENARIOS[0]
+
 const YEAR = new Date().getFullYear()
 
 function LandingPage() {
@@ -27,10 +42,10 @@ function LandingPage() {
   const signedIn = Boolean(session)
 
   return (
-    <div className="min-h-svh bg-white">
-      <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+    <div className="min-h-svh bg-paper">
+      <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-6">
         <Logo />
-        <nav aria-label="Account" className="flex items-center gap-1 sm:gap-2">
+        <nav aria-label="Account" className="flex items-center gap-1 sm:gap-3">
           {signedIn ? (
             <Link to="/dashboard" className={buttonPrimary}>
               Go to dashboard
@@ -49,25 +64,27 @@ function LandingPage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden">
-          <div
+        <section className="paper-grain relative overflow-hidden border-y border-ink">
+          <p
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 -z-0 h-[32rem] bg-gradient-to-b from-brand-50 to-white"
-          />
-          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-12 pb-20 sm:px-6 lg:grid-cols-2 lg:pt-20">
-            <div className="space-y-6">
-              <p className="inline-flex rounded-full border border-accent-100 bg-accent-50 px-3 py-1 text-xs font-semibold text-accent-700">
-                Conversational Hebrew, A1 to B2
-              </p>
-              <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-                Practice Hebrew the way you'll actually use it.
+            lang="he"
+            dir="rtl"
+            className="pointer-events-none absolute -top-4 -right-6 text-[clamp(9rem,32vw,28rem)] leading-none font-bold text-peach/45 select-none"
+          >
+            שיחה
+          </p>
+          <div className="relative mx-auto grid max-w-6xl gap-14 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:pt-20 lg:pb-24">
+            <div className="lg:col-span-7 xl:col-span-8">
+              <p className={eyebrow}>Conversational Hebrew · A1 to B2</p>
+              <h1 className="mt-6 text-display-xl font-normal tracking-tight">
+                Speak Hebrew <em className="block text-terracotta-deep">like you live there.</em>
               </h1>
-              <p className="max-w-xl text-lg text-slate-600">
-                LingoLoop puts you in real situations with friendly characters, so you build the
-                confidence to order, ask, plan and chat in Hebrew.
+              <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-soft">
+                LingoLoop puts you in real situations with friendly characters, so you build the confidence to order,
+                ask, plan and chat in Hebrew.
               </p>
-              <div className="flex flex-wrap gap-3">
-                <Link to={signedIn ? '/dashboard' : '/signup'} className={buttonPrimary}>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link to={signedIn ? '/dashboard' : '/signup'} className={`${buttonPrimary} px-7`}>
                   {signedIn ? 'Continue practicing' : 'Start practicing free'}
                 </Link>
                 {!signedIn && (
@@ -78,78 +95,96 @@ function LandingPage() {
               </div>
             </div>
 
-            {/* Sample exchange preview */}
-            <div className={`mx-auto w-full max-w-md p-5 sm:p-6 ${card}`} aria-label="Example conversation">
-              <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
-                <ScenarioIcon id="cafe" size="sm" />
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">At a Café</p>
-                  <p className="text-xs text-slate-500">With Noa, the barista · A2</p>
+            {/* Sample exchange, set like a clipping pinned beside the headline. */}
+            <figure className="w-full max-w-md self-end justify-self-center lg:col-span-5 lg:mb-2 xl:col-span-4">
+              <div className="border border-ink bg-paper lg:rotate-1">
+                <div className="flex items-stretch border-b border-ink bg-terracotta text-ink">
+                  <div className="flex-1 px-4 py-3">
+                    <p className={eyebrowType}>Scene 01 · A2</p>
+                    <p className="font-display text-lg">{CAFE.title}</p>
+                  </div>
+                  <ScenarioArt id="cafe" className="w-24 border-s border-ink" />
+                </div>
+                <div className="flex flex-col gap-3 p-4">
+                  <div className="flex flex-col items-start gap-1.5">
+                    <TutorMessage
+                      content="שלום! מה תרצו להזמין?"
+                      translation="Hi! What would you like to order?"
+                      words={CAFE.greetings.A2.words}
+                      speaker="Noa"
+                    />
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className={userBubble}>
+                      <p lang="he" dir="rtl" className="text-lg">
+                        אני רוצה קפה הפוך, בבקשה.
+                      </p>
+                    </div>
+                    <p className={correctionNote}>
+                      Nice! <span lang="he">קפה הפוך</span> is Israel’s classic latte.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-2.5">
-                  <p lang="he" dir="rtl" className="text-slate-900">
-                    שלום! מה תרצו להזמין?
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">Hi! What would you like to order?</p>
-                </div>
-                <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-brand-600 px-4 py-2.5 text-white">
-                  <p lang="he" dir="rtl">
-                    אני רוצה קפה הפוך, בבקשה.
-                  </p>
-                </div>
-                <div className="ml-auto max-w-[85%] rounded-xl border border-accent-100 bg-accent-50 px-3 py-2 text-xs text-accent-700">
-                  Nice! <span lang="he" dir="rtl">קפה הפוך</span> is Israel's classic latte.
-                </div>
-              </div>
-            </div>
+              <figcaption className={`mt-3 ${eyebrow}`}>Fig. 1: Hover a Hebrew word to see its meaning</figcaption>
+            </figure>
           </div>
         </section>
 
-        <section aria-labelledby="how-heading" className="border-y border-slate-100 bg-slate-50">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <h2 id="how-heading" className="text-2xl font-semibold tracking-tight">
+        <section aria-labelledby="how-heading" className="mx-auto max-w-6xl px-4 py-section sm:px-6">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <h2 id="how-heading" className="text-display-md font-normal tracking-tight lg:col-span-4">
               How it works
             </h2>
-            <ol className="mt-8 grid gap-6 md:grid-cols-3">
+            <ol className="grid gap-10 sm:grid-cols-3 lg:col-span-8">
               {STEPS.map((step, index) => (
-                <li key={step.title} className={`p-6 ${card}`}>
-                  <span className="grid size-8 place-items-center rounded-full bg-brand-600 text-sm font-semibold text-white">
+                <li key={step.title} className="border-t border-ink pt-5">
+                  <span aria-hidden="true" className="font-display text-6xl leading-none text-cobalt">
                     {index + 1}
                   </span>
-                  <h3 className="mt-4 font-semibold">{step.title}</h3>
-                  <p className="mt-1.5 text-sm text-slate-500">{step.body}</p>
+                  <h3 className="mt-5 text-xl font-normal">{step.title}</h3>
+                  <p className="mt-2 leading-relaxed text-ink-soft">{step.body}</p>
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        <section aria-labelledby="scenes-heading" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 id="scenes-heading" className="text-2xl font-semibold tracking-tight">
-            Scenes to practice
-          </h2>
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {SCENARIOS.map((scenario) => (
-              <li key={scenario.id} className={`flex flex-col gap-3 p-5 ${card}`}>
-                <ScenarioIcon id={scenario.id} />
-                <h3 className="font-semibold">{scenario.title}</h3>
-                <p lang="he" dir="rtl" className="text-right text-sm font-medium text-brand-700">
-                  {scenario.hebrewTitle}
-                </p>
-                <p className="text-sm text-slate-500">{scenario.description}</p>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-12 flex flex-col items-start gap-4 rounded-[var(--radius-card)] bg-gradient-to-br from-brand-700 to-brand-900 p-8 text-white sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xl font-semibold">Ready for your first conversation?</p>
-              <p className="mt-1 text-brand-100">It takes less than a minute to get started.</p>
+        <section aria-labelledby="scenes-heading" className="border-t border-ink bg-paper-deep">
+          <div className="mx-auto max-w-6xl px-4 py-section sm:px-6">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 id="scenes-heading" className="text-display-md font-normal tracking-tight">
+                Four places to begin
+              </h2>
+              <p className={eyebrow}>Destinations 01–04</p>
             </div>
+            <ul className="mt-12 grid items-end gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+              {SCENARIOS.map((scenario, index) => (
+                <li key={scenario.id}>
+                  <ScenarioArt id={scenario.id} className={`w-full border border-ink ${POSTCARD[index]}`} />
+                  <p className={`mt-4 ${eyebrow}`}>No. {SCENE_STYLE[scenario.id].folio}</p>
+                  <h3 className="mt-1 text-xl font-normal">{scenario.title}</h3>
+                  <div>
+                    <p lang="he" dir="rtl" className="text-left text-lg font-medium text-terracotta-deep">
+                      {scenario.hebrewTitle}
+                    </p>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-soft">{scenario.description}</p>
+                  <p className="mt-2 text-sm">With {splitCharacter(scenario).name}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section className="bg-cobalt text-paper">
+          <div className="mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 py-section sm:px-6 lg:flex-row lg:items-end lg:justify-between">
+            <p className="max-w-2xl font-display text-display-md">
+              Your first conversation is <em>a minute away.</em>
+            </p>
             <Link
               to={signedIn ? '/dashboard' : '/signup'}
-              className="inline-flex rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex min-h-11 shrink-0 items-center rounded-sm bg-paper px-7 py-2.5 text-sm font-medium tracking-wide text-cobalt transition-colors hover:bg-paper-deep focus-visible:outline-paper"
             >
               {signedIn ? 'Go to dashboard' : 'Create a free account'}
             </Link>
@@ -157,9 +192,10 @@ function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-100">
-        <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-400 sm:px-6">
-          © {YEAR} LingoLoop
+      <footer className="border-t border-ink">
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-8 text-sm text-ink-soft sm:px-6">
+          <span>© {YEAR} LingoLoop</span>
+          <span>Set in Fraunces, DM Sans &amp; Heebo. Illustrations drawn for LingoLoop.</span>
         </div>
       </footer>
     </div>
